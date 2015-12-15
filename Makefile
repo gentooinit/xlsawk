@@ -11,7 +11,6 @@ PACKAGE_DIR = $(PREFIX)/$(OWNER)
 
 SOURCE := $(SRC_DIR)/$(PACKAGE_DIR)
 BINARY := $(BIN_DIR)/$(PACKAGE_DIR)
-PACKER := fastjar
 
 LIBRARY_DIR := libs/ooxml-lib libs
 libs := $(foreach dir,$(LIBRARY_DIR),$(wildcard $(dir)/*.jar))
@@ -28,12 +27,18 @@ CC = gcj
 CFLAGS = -Wall -C --classpath $(CLASSPATH)
 endif
 
+ifeq (0,$(shell which jar &> /dev/null; echo $$?))
+PACKER = jar
+else
+PACKER = fastjar
+endif
+
 all: $(TARGET)
 
 $(TARGET): $(BIN_DIR) pack
 
 pre_build: $(objects)
-	@-mkdir $(BUILD_DIR)
+	@-mkdir -p $(BUILD_DIR)
 	-cp -rf $(BIN_DIR)/$(PREFIX) $(BUILD_DIR)
 
 $(libs): pre_build
@@ -45,7 +50,7 @@ pack: $(libs)
 	$(PACKER) cMf ../$(TARGET) *
 
 $(BIN_DIR):
-	mkdir -p $@
+	-mkdir -p $@
 
 $(objects): $(BINARY)/%.class: $(SOURCE)/%.java
 	$(CC) $(CFLAGS) -d $(BIN_DIR) $<
