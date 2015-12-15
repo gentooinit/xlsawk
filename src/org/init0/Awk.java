@@ -44,10 +44,19 @@ public class Awk {
 		AS = wb.getSheetAt(wb.getActiveSheetIndex());
 
 		field = new ArrayList<String>();
+
+		FS = "\t";
+		RS = "\n";
+		OFS = "\t";
+		ORS = "\n";
 	}
 
 	public void print(String str) {
 		System.out.print(str);
+	}
+
+	public void println(String str) {
+		print(str + ORS);
 	}
 
 	/* For Runnable Jar */
@@ -76,6 +85,9 @@ public class Awk {
 
 			field.clear();
 
+			/* Set $0 as entire row */
+			field.add("");
+
 			if (row != null) {
 				cellLoop: for (j = 0; j < row.getLastCellNum(); ++j) {
 					Cell cell = row.getCell(j);
@@ -94,7 +106,15 @@ public class Awk {
 				}
 			}
 
-			NF = field.size();
+			NF = field.size() - 1;
+
+			for (j = 1; j <= NF - 1; ++j) {
+				field.set(0, field.get(0) + field.get(j) + FS);
+			}
+
+			if (j == NF) {
+				field.set(0, field.get(0) + field.get(j));
+			}
 
 			each();
 		}
@@ -149,6 +169,11 @@ public class Awk {
 	protected Sheet AS = null;                         /* Active Sheet */
 	protected ArrayList<String> field;
 	protected Map<String, Sheet> sheet;
+	protected String FS;
+	protected String RS;
+	protected String ORS;
+	protected String OFS;
+
 
 	private OutputStream os = null;
 	private InputStream is = null;
