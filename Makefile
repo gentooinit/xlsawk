@@ -22,15 +22,19 @@ CLASSPATH := $(subst jar ,jar:,$(libs))
 ifeq (0,$(shell which javac &> /dev/null; echo $$?))
 CC = javac
 CFLAGS = -cp $(CLASSPATH)
-else
+else ifeq (0,$(shell which gcj &> /dev/null; echo $$?))
 CC = gcj
 CFLAGS = -Wall -C --classpath $(CLASSPATH)
+else
+$(error No JDK found!)
 endif
 
 ifeq (0,$(shell which jar &> /dev/null; echo $$?))
 PACKER = jar
-else
+else ifeq (0,$(shell which fastjar &> /dev/null; echo $$?))
 PACKER = fastjar
+else
+$(error No Jar packer found!)
 endif
 
 all: $(TARGET)
