@@ -33,9 +33,8 @@ public class Awk {
 			wb = new XSSFWorkbook(is);
 		}
 
-		NS = wb.getNumberOfSheets();
-
 		sheet = new HashMap<String, Sheet>();
+		NS = wb.getNumberOfSheets();
 		for (int i = 0; i < NS; ++i) {
 			sheet.put(wb.getSheetName(i), wb.getSheetAt(i));
 		}
@@ -49,6 +48,9 @@ public class Awk {
 		RS = "\n";
 		OFS = "\t";
 		ORS = "\n";
+
+		NR = 0;
+		NF = 0;
 	}
 
 	public void print(String str) {
