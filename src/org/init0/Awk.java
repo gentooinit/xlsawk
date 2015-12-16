@@ -59,10 +59,6 @@ public class Awk {
 		print(str + ORS);
 	}
 
-	/* For Runnable Jar */
-	public static void main(String[] args) {
-	}
-
 	public void begin() {
 	}
 
