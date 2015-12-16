@@ -140,7 +140,7 @@ public class Awk {
 				literal = cell.toString();
 				break;
 			}
-			literal.replaceAll("\n", "");
+			literal = literal.trim().replaceAll("\n", "");
 		}
 
 		return literal;
