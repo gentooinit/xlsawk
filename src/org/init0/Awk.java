@@ -127,11 +127,8 @@ public class Awk {
 				literal = cell.getCellFormula();
 				break;
 			case Cell.CELL_TYPE_NUMERIC:
-				cell.setCellType(Cell.CELL_TYPE_STRING);
-				literal = cell.getStringCellValue();
-
-				/* POI Bug */
-				// literal = Double.toString(cell.getNumericCellValue());
+				literal = new DataFormatter()
+					.formatCellValue(cell);
 				break;
 			case Cell.CELL_TYPE_STRING:
 				literal = cell.getStringCellValue();
