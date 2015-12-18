@@ -10,8 +10,8 @@ import java.util.Map;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 /**
  * @author init0
@@ -19,18 +19,18 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
  */
 
 public class Awk {
-	public enum ExcelType {
-		XLS, XLSX
-	};
-
-	public Awk(OutputStream _os, InputStream _is, ExcelType type) throws IOException {
+	public Awk(OutputStream _os, InputStream _is) throws Exception {
 		os = _os;
 		is = _is;
 
-		if (type == ExcelType.XLS) {
-			wb = new HSSFWorkbook(is);
-		} else {
-			wb = new XSSFWorkbook(is);
+		try {
+			wb = WorkbookFactory.create(is);
+		} catch (EncryptedDocumentException e) {
+			throw new Exception("Encrypted document detected.");
+		} catch (InvalidFormatException e) {
+			throw new Exception("Invalid document format.");
+		} catch (IOException e) {
+			throw e;
 		}
 
 		sheet = new HashMap<String, Sheet>();
