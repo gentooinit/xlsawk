@@ -19,19 +19,19 @@ objects := $(foreach dir,$(SOURCE),$(srcs:$(dir)/%.java=$(BINARY)/%.class))
 
 CLASSPATH := $(subst jar ,jar:,$(libs))
 
-ifeq (0,$(shell which javac &> /dev/null; echo $$?))
+ifneq (,$(shell whereis javac | cut -d: -f2))
 CC = javac
 CFLAGS = -cp $(CLASSPATH)
-else ifeq (0,$(shell which gcj &> /dev/null; echo $$?))
+else ifneq (,$(shell whereis gcj | cut -d: -f2))
 CC = gcj
 CFLAGS = -Wall -C --classpath $(CLASSPATH)
 else
 $(error No JDK found!)
 endif
 
-ifeq (0,$(shell which jar &> /dev/null; echo $$?))
+ifneq (,$(shell whereis jar | cut -d: -f2))
 PACKER = jar
-else ifeq (0,$(shell which fastjar &> /dev/null; echo $$?))
+else ifneq (,$(shell whereis fastjar | cut -d: -f2))
 PACKER = fastjar
 else
 $(error No Jar packer found!)
