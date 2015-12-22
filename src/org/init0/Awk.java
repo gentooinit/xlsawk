@@ -61,6 +61,14 @@ public class Awk {
 		print(str + ORS);
 	}
 
+	protected String getField(int index) {
+		if (index < NF) {
+			return field.get(index);
+		} else {
+			return "";
+		}
+	}
+
 	public void begin() {
 	}
 
