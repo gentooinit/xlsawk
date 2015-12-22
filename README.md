@@ -5,7 +5,7 @@ An XLS(X) file reader based on Apache POI, and AWK structure.
 * Oracle JDK(>=1.5)
 * or GCC with --enable-languages=java built
 
-# Build
+# Building
     git clone https://github.com/gentooinit/xlsawk.git
     make
 
