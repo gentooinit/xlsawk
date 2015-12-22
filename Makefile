@@ -1,3 +1,6 @@
+# Force to use Bash. We need $(shell) spawns a bash instead of sh.
+# Because the /bin/sh maybe links to other shell.
+SHELL = /bin/bash
 NAME = xlsawk
 PREFIX = org
 OWNER = init0
@@ -19,19 +22,19 @@ objects := $(foreach dir,$(SOURCE),$(srcs:$(dir)/%.java=$(BINARY)/%.class))
 
 CLASSPATH := $(subst jar ,jar:,$(libs))
 
-ifneq (,$(shell whereis javac | cut -d: -f2))
+ifeq (0,$(shell which javac &> /dev/null; echo $$?))
 CC = javac
 CFLAGS = -cp $(CLASSPATH)
-else ifneq (,$(shell whereis gcj | cut -d: -f2))
+else ifeq (0,$(shell which gcj &> /dev/null; echo $$?))
 CC = gcj
 CFLAGS = -Wall -C --classpath $(CLASSPATH)
 else
 $(error No JDK found!)
 endif
 
-ifneq (,$(shell whereis jar | cut -d: -f2))
+ifeq (0,$(shell which jar &> /dev/null; echo $$?))
 PACKER = jar
-else ifneq (,$(shell whereis fastjar | cut -d: -f2))
+else ifeq (0,$(shell which fastjar &> /dev/null; echo $$?))
 PACKER = fastjar
 else
 $(error No Jar packer found!)
