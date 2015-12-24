@@ -62,7 +62,7 @@ public class Awk {
 	}
 
 	protected String getField(int index) {
-		if (index < NF) {
+		if (index <= NF) {
 			return field.get(index);
 		} else {
 			return "";
