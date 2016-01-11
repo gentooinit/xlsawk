@@ -19,12 +19,12 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
  */
 
 public class Awk {
-	public Awk(OutputStream _os, InputStream _is) throws Exception {
-		os = _os;
-		is = _is;
+	public Awk(OutputStream os, InputStream is) throws Exception {
+		this.os = os;
+		this.is = is;
 
 		try {
-			wb = WorkbookFactory.create(is);
+			wb = WorkbookFactory.create(this.is);
 		} catch (EncryptedDocumentException e) {
 			throw new Exception("Encrypted document detected.");
 		} catch (InvalidFormatException e) {
