@@ -69,6 +69,15 @@ public class Awk {
 		}
 	}
 
+	protected void write() {
+		try {
+			if (os != null)
+				wb.write(os);
+		} catch (IOException e) {
+			System.out.println("Write to OutputStream failed!");
+		}
+	}
+
 	public void begin() {
 	}
 
