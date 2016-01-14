@@ -74,6 +74,8 @@ public class Awk {
 
 		NR = 0;
 		NF = 0;
+
+		exitFlag = false;
 	}
 
 	protected void print(String str) {
@@ -131,11 +133,53 @@ public class Awk {
 		}
 	}
 
-	protected boolean regexMatch(String str, String regex) {
-		Pattern p = Pattern.compile(regex);
+	protected void setField(int index, String str) {
+		if (index <= NF) {
+			field.set(index, str);
+		} else {
+			for (int i = NF + 1; i < index; ++i)
+				field.add("");
+
+			field.add(str);
+			NF = field.size() - 1;
+		}
+	}
+
+	protected boolean regexMatch(String str, String regex, boolean icase) {
+		Pattern p;
+
+		if (icase)
+			p = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+		else
+			p = Pattern.compile(regex);
+
 		Matcher m = p.matcher(str);
 
 		return m.find();
+	}
+
+	protected boolean regexMatch(String str, String regex) {
+		return regexMatch(str, regex, false);
+	}
+
+	protected String gensub(String regex, String replacement,
+			String hits, String str) {
+		Pattern p;
+
+		p = Pattern.compile(regex);
+
+		Matcher m = p.matcher(str);
+
+		switch (hits.charAt(0)) {
+		case 'g':
+		case 'G':
+			return m.replaceAll(replacement);
+		case '1':
+			return m.replaceFirst(replacement);
+		default:
+			// TODO: the nth hits replacement
+			return "";
+		}
 	}
 
 	protected void flush() {
@@ -159,6 +203,10 @@ public class Awk {
 	public void end() {
 	}
 
+	protected void exit() {
+		exitFlag = true;
+	}
+
 	protected void each() {
 	}
 
@@ -169,7 +217,7 @@ public class Awk {
 			return;
 		}
 
-		for (i = 0; i <= AS.getLastRowNum(); ++i) {
+		for (i = 0; i <= AS.getLastRowNum() && !exitFlag; ++i) {
 			NR++;
 			Row row = AS.getRow(i);
 
@@ -263,6 +311,7 @@ public class Awk {
 	protected String OFS;
 	
 
+	private boolean exitFlag;
 	private String fileName;
 	private OutputStream os = null;
 	private InputStream is = null;
