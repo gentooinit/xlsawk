@@ -7,6 +7,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.*;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.*;
@@ -101,6 +102,7 @@ public class Awk {
 		}
 	}
 
+
 	protected void printRow() {
 		if (OS == null) {
 			System.err.println("Error: " + 
@@ -127,6 +129,13 @@ public class Awk {
 		} else {
 			return "";
 		}
+	}
+
+	protected boolean regexMatch(String str, String regex) {
+		Pattern p = Pattern.compile(regex);
+		Matcher m = p.matcher(str);
+
+		return m.find();
 	}
 
 	protected void flush() {
