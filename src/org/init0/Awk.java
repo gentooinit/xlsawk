@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.*;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
@@ -19,6 +19,24 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
  */
 
 public class Awk {
+	public Awk(String fileName) throws Exception {
+		this.fileName = fileName;
+
+		try {
+			wb = WorkbookFactory.create(
+					new FileInputStream(this.fileName)
+			);
+		} catch (EncryptedDocumentException e) {
+			throw new Exception("Encrypted document detected.");
+		} catch (InvalidFormatException e) {
+			throw new Exception("Invalid document format.");
+		} catch (IOException e) {
+			throw e;
+		}
+
+		init();
+	}
+
 	public Awk(OutputStream os, InputStream is) throws Exception {
 		this.os = os;
 		this.is = is;
@@ -33,10 +51,14 @@ public class Awk {
 			throw e;
 		}
 
-		sheet = new HashMap<String, Sheet>();
+		init();
+	}
+
+	private void init() {
+		sheets = new HashMap<String, Sheet>();
 		NS = wb.getNumberOfSheets();
 		for (int i = 0; i < NS; ++i) {
-			sheet.put(wb.getSheetName(i), wb.getSheetAt(i));
+			sheets.put(wb.getSheetName(i), wb.getSheetAt(i));
 		}
 
 		/* Default sheet */
@@ -53,12 +75,50 @@ public class Awk {
 		NF = 0;
 	}
 
-	public void print(String str) {
+	protected void print(String str) {
 		System.out.print(str);
 	}
 
-	public void println(String str) {
+	protected void println(String str) {
 		print(str + ORS);
+	}
+
+	protected void setStdsheet(String name) {
+		String safeName = WorkbookUtil.createSafeSheetName(name);
+		try {
+			if (sheets.containsKey(safeName)) {
+				System.err.println("Warning: " +
+						"Workbook already contains " +
+						"a sheet with this name.");
+
+				OS = sheets.get(safeName);
+			} else {
+				OS = wb.createSheet(safeName);
+			}
+		} catch (Exception e) {
+			System.err.println("Error: " +
+					"Sheet name is empty or invalid.");
+		}
+	}
+
+	protected void printRow() {
+		if (OS == null) {
+			System.err.println("Error: " + 
+					"Call setStdsheet() first.");
+			return;
+		}
+
+		if (NR == 0) {
+			System.err.println("Error: " + 
+					"Trying to printRow at 0 Row.");
+			return;
+		}
+
+		Row row = OS.createRow(NR);
+		for (int i = 1; i <= NF; ++i) {
+			Cell cell = row.createCell(i - 1);
+			cell.setCellValue(getField(i));
+		}
 	}
 
 	protected String getField(int index) {
@@ -69,12 +129,18 @@ public class Awk {
 		}
 	}
 
-	protected void write() {
+	protected void flush() {
 		try {
+			if (os == null)
+				os = new FileOutputStream(fileName);
+			
 			if (os != null)
 				wb.write(os);
-		} catch (IOException e) {
-			System.out.println("Write to OutputStream failed!");
+
+			if (is == null)
+				os.close();
+		} catch (Exception e) {
+			System.err.println("Write to OutputStream failed.");
 		}
 	}
 
@@ -175,18 +241,20 @@ public class Awk {
 		return literal;
 	}
 
-	protected int NS;                                  /* Number of Sheet */
-	protected int NR;                                  /* Number of Record */
-	protected int NF;                                  /* Number of Field */
-	protected Sheet AS = null;                         /* Active Sheet */
+	protected int NS;                          /* Number of Sheet */
+	protected int NR;                          /* Number of Record */
+	protected int NF;                          /* Number of Field */
+	protected Sheet AS = null;                 /* Active Sheet */
+	protected Sheet OS = null;                 /* Output Sheet */
 	protected ArrayList<String> field;
-	protected Map<String, Sheet> sheet;
+	protected Map<String, Sheet> sheets;
 	protected String FS;
 	protected String RS;
 	protected String ORS;
 	protected String OFS;
+	
 
-
+	private String fileName;
 	private OutputStream os = null;
 	private InputStream is = null;
 	private Workbook wb = null;
