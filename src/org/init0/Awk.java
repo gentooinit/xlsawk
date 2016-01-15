@@ -4,9 +4,7 @@
 package org.init0;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.*;
 
 import org.apache.poi.ss.usermodel.*;
@@ -95,15 +93,97 @@ public class Awk {
 						"a sheet with this name.");
 
 				OS = sheets.get(safeName);
+				// Clear the output sheet
+				List<Row> toRemove = new ArrayList<Row>();
+				Iterator<Row> it = OS.rowIterator();
+				while (it.hasNext()) {
+					Row row = it.next();
+					toRemove.add(row);
+				}
+
+				for (Row row: toRemove)
+					OS.removeRow(row);
 			} else {
 				OS = wb.createSheet(safeName);
 			}
-		} catch (Exception e) {
+		} catch (IllegalArgumentException e) {
 			System.err.println("Error: " +
 					"Sheet name is empty or invalid.");
 		}
+
+		osCursorX = 0;
+		osCursorY = 0;
 	}
 
+	private String[] cut(String str, String delimter) {
+		int pos = str.indexOf(delimter);
+		int end = pos - 1;
+		String[] ret = new String[3];
+		String piece;
+
+		ret[2] = "False";
+
+		if (pos != -1) {
+			ret[2] = "True";
+
+			if (end < 1)
+				end = 1; 
+
+			piece = str.substring(0, pos);
+			if (pos < str.length() - 1)
+				str = str.substring(pos + 1);
+			else
+				str = "";
+		} else {
+			piece = str;
+			str = "";
+		}
+
+		ret[0] = piece;
+		ret[1] = str;
+
+		return ret;
+	}
+
+	protected void printSheet(String str) {
+		while (!"".equals(str)) {
+			String[] lineList;
+			String oneLine;
+
+			lineList = cut(str, "\n");
+			oneLine = lineList[0];
+			str = lineList[1];
+
+			Row row = OS.getRow(osCursorX);
+			if (row == null)
+				row = OS.createRow(osCursorX);
+
+			while (!"".equals(oneLine)) {
+				String[] cellList;
+				String oneCell;
+
+				cellList = cut(oneLine, "\t");
+				oneCell = cellList[0];
+				oneLine = cellList[1];
+
+				Cell cell = row.getCell(osCursorY);
+				if (cell == null)
+					cell = row.createCell(osCursorY);
+
+				cell.setCellValue(getContent(cell) + oneCell);
+
+				// Go to next Cell
+				if ("True".equals(cellList[2]))
+					++osCursorY;
+			}
+
+			// Simulate CR and NL
+			if ("True".equals(lineList[2])) {
+				++osCursorX;
+				osCursorY = 0;
+			}
+		}
+	}
 
 	protected void printRow() {
 		if (OS == null) {
@@ -303,7 +383,7 @@ public class Awk {
 	protected int NF;                          /* Number of Field */
 	protected Sheet AS = null;                 /* Active Sheet */
 	protected Sheet OS = null;                 /* Output Sheet */
-	protected ArrayList<String> field;
+	protected List<String> field;
 	protected Map<String, Sheet> sheets;
 	protected String FS;
 	protected String RS;
@@ -312,6 +392,8 @@ public class Awk {
 	
 
 	private boolean exitFlag;
+	private int osCursorX;
+	private int osCursorY;
 	private String fileName;
 	private OutputStream os = null;
 	private InputStream is = null;
