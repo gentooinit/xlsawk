@@ -167,8 +167,14 @@ public class Awk {
 				oneLine = cellList[1];
 
 				Cell cell = row.getCell(osCursorY);
-				if (cell == null)
+				if (cell == null) {
 					cell = row.createCell(osCursorY);
+					int colInx = cell.getColumnIndex();
+					OS.autoSizeColumn(colInx, true);
+					if (OS.getColumnWidth(colInx) == 0) {
+						OS.setColumnWidth(colInx, 256 * 1);
+					}
+				}
 
 				cell.setCellValue(getContent(cell) + oneCell);
 
