@@ -2,7 +2,7 @@
 An XLS(X) file reader based on Apache POI, and AWK structure. 
 
 # Requirements
-* Oracle JDK(>=1.5)
+* OpenJDK11, OpenJDK13
 * or GCC with --enable-languages=java built
 
 # Building
