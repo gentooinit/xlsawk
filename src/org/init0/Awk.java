@@ -27,8 +27,6 @@ public class Awk {
 			);
 		} catch (EncryptedDocumentException e) {
 			throw new Exception("Encrypted document detected.");
-		} catch (InvalidFormatException e) {
-			throw new Exception("Invalid document format.");
 		} catch (IOException e) {
 			throw e;
 		}
@@ -44,8 +42,6 @@ public class Awk {
 			wb = WorkbookFactory.create(this.is);
 		} catch (EncryptedDocumentException e) {
 			throw new Exception("Encrypted document detected.");
-		} catch (InvalidFormatException e) {
-			throw new Exception("Invalid document format.");
 		} catch (IOException e) {
 			throw e;
 		}
@@ -349,14 +345,14 @@ public class Awk {
 
 		if (cell != null) {
 			switch (cell.getCellType()) {
-			case Cell.CELL_TYPE_FORMULA:
+			case FORMULA:
 				literal = cell.getCellFormula();
 				break;
-			case Cell.CELL_TYPE_NUMERIC:
+			case NUMERIC:
 				literal = new DataFormatter()
 					.formatCellValue(cell);
 				break;
-			case Cell.CELL_TYPE_STRING:
+			case STRING:
 				literal = cell.getStringCellValue();
 				break;
 			default:

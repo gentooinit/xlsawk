@@ -15,7 +15,7 @@ PACKAGE_DIR = $(PREFIX)/$(OWNER)
 SOURCE := $(SRC_DIR)/$(PACKAGE_DIR)
 BINARY := $(BIN_DIR)/$(PACKAGE_DIR)
 
-LIBRARY_DIR := libs/ooxml-lib libs
+LIBRARY_DIR := libs/ooxml-lib libs libs/lib
 libs := $(foreach dir,$(LIBRARY_DIR),$(wildcard $(dir)/*.jar))
 srcs := $(foreach dir,$(SOURCE),$(wildcard $(dir)/*.java))
 objects := $(foreach dir,$(SOURCE),$(srcs:$(dir)/%.java=$(BINARY)/%.class))
