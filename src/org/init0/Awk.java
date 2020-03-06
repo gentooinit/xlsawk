@@ -72,6 +72,16 @@ public class Awk {
 		exitFlag = false;
 	}
 
+	protected boolean setActiveSheet(String name) {
+		Sheet sheet = wb.getSheet(name);
+		if (sheet == null)
+			return false;
+
+		AS = sheet;
+
+		return true;
+	}
+
 	protected void print(String str) {
 		System.out.print(str);
 	}
@@ -344,22 +354,25 @@ public class Awk {
 		String literal = "";
 
 		if (cell != null) {
-			switch (cell.getCellType()) {
-			case FORMULA:
-				literal = cell.getCellFormula();
-				break;
-			case NUMERIC:
-				literal = new DataFormatter()
-					.formatCellValue(cell);
-				break;
-			case STRING:
-				literal = cell.getStringCellValue();
-				break;
-			default:
-				literal = cell.toString();
-				break;
+			try {
+				switch (cell.getCellType()) {
+				case FORMULA:
+					literal = cell.getCellFormula();
+					break;
+				case NUMERIC:
+					literal = new DataFormatter()
+						.formatCellValue(cell);
+					break;
+				case STRING:
+					literal = cell.getStringCellValue();
+					break;
+				default:
+					literal = cell.toString();
+					break;
+				}
+				literal = literal.trim().replaceAll("\n", "");
+			} catch (Exception ex) {
 			}
-			literal = literal.trim().replaceAll("\n", "");
 		}
 
 		return literal;
@@ -391,8 +404,6 @@ public class Awk {
 	protected String RS;
 	protected String ORS;
 	protected String OFS;
-	
-
 	private boolean exitFlag;
 	private int osCursorX;
 	private int osCursorY;
