@@ -237,6 +237,36 @@ public class Awk {
 		}
 	}
 
+	protected void updateField() {
+		int x = NR - 1;
+		Row row = AS.getRow(x);
+		if (row == null)
+			row = AS.createRow(x);
+
+		cellLoop: for (int i = 1; i <= NF; ++i) {
+			int y = i - 1;
+			Cell cell = row.getCell(y);
+			if (cell == null)
+				cell = row.createCell(y);
+
+			CellRangeAddress range;
+			for (int k = 0; k < AS.getNumMergedRegions(); ++k) {
+				range = AS.getMergedRegion(k);
+
+				if (range.isInRange(x, y)) {
+					if (x != range.getFirstRow() ||
+						y != range.getFirstColumn()) {
+						continue cellLoop;
+					} else {
+						break;
+					}
+				}
+			}
+
+			cell.setCellValue(field.get(i));
+		}
+	}
+
 	protected boolean regexMatch(String str, String regex, boolean icase) {
 		Pattern p;
 
